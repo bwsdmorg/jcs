@@ -5,6 +5,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Window
 import QtQuick.VirtualKeyboard
+import "qml"
 
 Window {
     id: window
@@ -46,6 +47,29 @@ Window {
             Layout.column: 0
             Layout.row: 0
             Layout.alignment: Qt.AlignTop
+        }
+
+        Button {
+          id: routeAddressButton
+
+          checkable: true
+          text: "Search/Routing"
+          width: 200
+          Layout.fillWidth: true
+          Layout.fillHeight: true
+          Layout.column: 0
+          Layout.row: 1
+          Layout.alignment: Qt.AlignTop
+
+          onToggled: {
+            console.log("We toggled the button")
+            var component = Qt.createComponent("./qml/RouteAddress.qml", navMap)
+          
+            wnd = component.createObject(navMap, {
+                "x": 50,
+                "y": 50
+            });
+          }
         }
 
         // TODO Create To/From address form
