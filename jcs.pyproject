@@ -1,0 +1,9 @@
+{
+    "files": [
+        "main.py",
+        "main.qml",
+        "images/mapMarker.png",
+        "qml/RouteAddressForm.ui.qml",
+        "qml/RouteAddress.qml"
+    ]
+}
