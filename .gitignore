@@ -36,6 +36,8 @@ Thumbs.db
 /.qmake.stash
 env.json
 venv/
+jcs/
+*.user
 # qtcreator generated files
 *.pro.user*
 CMakeLists.txt.user*
