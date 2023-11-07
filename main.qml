@@ -14,6 +14,7 @@ Window {
     visible: true
 
     property string mapboxgl_api_token
+    property var wnd
 
     function showRoute(startCoordinate, endCoordinate) {
       routeQuery.addWaypoint(startCoordinate)
@@ -63,16 +64,19 @@ Window {
 
           onToggled: {
             console.log("We toggled the button")
-            var component = Qt.createComponent("./qml/RouteAddress.qml", navMap)
-          
-            wnd = component.createObject(navMap, {
-                "x": 50,
-                "y": 50
-            });
+            if (checked) {
+              var component = Qt.createComponent("./qml/RouteAddress.qml", navMap)
+            
+              wnd = component.createObject(navMap, {
+                  "x": 50,
+                  "y": 50
+              });
+            } else {
+              wnd.destroy();
+            }
           }
         }
 
-        // TODO Create To/From address form
         // TODO Add travel optimizations/options to routes
 
         // TODO: Zoom on scroll wheel/pinch
@@ -244,7 +248,23 @@ Window {
                 geocodeModel.update()
               }
             }
+            
+            Connections {
+              function onSendAddresses(fromAddress, toAddress) {
+                navMap.fromAddress = fromAddress
+                console.log("From address entered: " + navMap.fromAddress)
+                navMap.toAddress = toAddress
+                console.log("To address entered: " + navMap.toAddress)
+                geocodeModel.startCoordinate = QtPositioning.coordinate()
+                geocodeModel.endCoordinate = QtPositioning.coordinate()
+                geocodeModel.query = navMap.fromAddress
+                geocodeModel.update()
 
+              }
+
+              ignoreUnknownSignals: true
+              target: wnd
+            }
         }
 
     }
