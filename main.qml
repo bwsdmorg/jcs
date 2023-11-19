@@ -77,9 +77,36 @@ Window {
           }
         }
 
-        // TODO Add travel optimizations/options to routes
+        Button {
+          id: spotifyButton
 
+          checkable: true
+          text: "Open Spotify"
+          width: 200
+          Layout.fillWidth: true
+          Layout.fillHeight: true
+          Layout.column: 0
+          Layout.row: 2
+          Layout.alignment: Qt.AlignTop
+
+          onToggled: {
+            console.log("We toggled the spotify button")
+            if (checked) {
+              var component = Qt.createComponent("./qml/Spotify.qml", navMap)
+            
+              wnd = component.createObject(navMap, {
+                  "x": 50,
+                  "y": 50
+              });
+            } else {
+              wnd.destroy();
+            }
+          }
+        }
+        // TODO: Step by step route listing like google maps
+        // TODO: Add travel optimizations/options to routes
         // TODO: Zoom on scroll wheel/pinch
+        
         Map {
             id: navMap
             

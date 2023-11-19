@@ -4,6 +4,10 @@
         "main.qml",
         "images/mapMarker.png",
         "qml/RouteAddressForm.ui.qml",
-        "qml/RouteAddress.qml"
+        "qml/RouteAddress.qml",
+        "qml/SpotifyWindow.ui.qml",
+        "qml/Spotify.qml",
+        "qml/SearchBar.ui.qml",
+        "qml/Search.qml"
     ]
 }
