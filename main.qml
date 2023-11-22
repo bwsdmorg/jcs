@@ -16,12 +16,17 @@ Window {
     property string mapboxgl_api_token
     property var wnd
 
+    signal buttonClicked()
+
     function showRoute(startCoordinate, endCoordinate) {
       routeQuery.addWaypoint(startCoordinate)
       routeQuery.addWaypoint(endCoordinate)
       routeModel.update()
     }
 
+    onButtonClicked: {
+      console.log("Button was clicked")
+    }
     Plugin {
         id: mapPlugin
         name: "osm"

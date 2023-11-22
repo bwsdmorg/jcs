@@ -5,52 +5,84 @@ import json
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from pathlib import Path
-from PySide6.QtCore import QObject, QAbstractListModel, Qt, QModelIndex, Slot
+from PySide6.QtCore import (
+    QObject,
+    QAbstractListModel,
+    Qt,
+    QModelIndex,
+    Slot,
+    Signal,
+)
 from PySide6.QtGui import QGuiApplication
-from PySide6.QtQml import QQmlApplicationEngine
-
-
-class GetMyPlaylists(QObject):
-    def __init__(self, query, parent=None):
-        super().__init__(parent)
-        self._query = query
-
-    @Slot()
-    def get_playlist_model(self):
-        data_list = []
-        print("Getting Playlist Model")
-        results = self._query
-        for i, item in enumerate(results["items"]):
-            data_list.append(item["name"])
-            print("%d %s" % (i, item["name"]))
-
-        self.model = ListModel(data_list)
-        return self.model
+from PySide6.QtQml import QQmlApplicationEngine, qmlRegisterType
 
 
 class ListModel(QAbstractListModel):
-    TextRole = Qt.UserRole + 1
+    ItemRole = Qt.UserRole + 1
 
-    def __init__(self, data, parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self._data = data
+        self._items = []
 
-    def rowCount(self, parent):
-        return len(self._data)
+    def rowCount(self, parent=QModelIndex()):
+        return len(self._items)
 
     def data(self, index, role):
-        if index.isValid() and role == self.TextRole:
-            return self._data[index.row()]
+        if 0 <= index.row() < self.rowCount() and index.column() == 0:
+            if role == ListModel.ItemRole:
+                return self._items[index.row()]
         return None
 
     def roleNames(self):
-        roles = {self.TextRole: b"displayText"}
-        return roles
+        return {ListModel.ItemRole: b"item"}
 
     @Slot()
-    def get(self, row):
-        if 0 <= row < self.rowCount(QModelIndex()):
-            return self._data[row]
+    def appendItem(self, item):
+        self.beginInsertRows(QModelIndex(), self.rowCount(), self.rowCount())
+        self._items.append(item)
+        self.endInsertRows()
+
+    @Slot()
+    def updateItem(self, index, newItem):
+        if 0 <= index < self.rowCount():
+            self._items[index] = newItem
+            self.dataChanged.emit(
+                self.index(index, 0), self.index(index, 0), [ListModel.ItemRole]
+            )
+
+    @Slot()
+    def removeItem(self, index):
+        if 0 <= index < self.rowCount():
+            self.beginRemoveRows(QModelIndex(), index, index)
+            del self._items[index]
+            self.endRemoveRows()
+
+
+class SignalHandler(QObject):
+    buttonClicked = Signal()
+
+    def __init__(self, engine, listModel):
+        super().__init__()
+        self._engine = engine
+        self._listModel = listModel
+
+    @Slot()
+    def handleButtonClicked(self):
+        print("Recieved signal")
+        playlist_model = getPlaylistModel(sp.current_user_playlists(), self._listModel)
+        self._engine.rootContext().setContextProperty("playlistModel", playlist_model)
+        self.buttonClicked.emit()
+
+
+@Slot()
+def getPlaylistModel(query, listModel):
+    print("Getting Playlist Model")
+    results = query
+    for i, item in enumerate(results["items"]):
+        listModel.appendItem(item["name"])
+        print("%d %s" % (i, item["name"]))
+
+    return listModel
 
 
 # def get_devicelist_model(query):
@@ -82,16 +114,24 @@ if __name__ == "__main__":
 
     engine = QQmlApplicationEngine()
 
-    playlist_model = GetMyPlaylists(sp.current_user_playlists())
+    # playlist_model = getPlaylistModel(sp.current_user_playlists())
     # devicelist_model = get_devicelist_model(sp.devices())
-    context = engine.rootContext()
-    context.setContextProperty("playlistModel", playlist_model)
+    # context = engine.rootContext()
+    # context.setContextProperty("playlistModel", playlist_model)
     # context.setContextProperty("deviceModel", devicelist_model)
 
+    # context_setter = ContextSetter(engine, "playlistModel", playlist_model)
+
     qml_file = Path(__file__).resolve().parent / "main.qml"
+
+    list_model = ListModel()
+    engine.rootContext().setContextProperty("listModel", list_model)
+    signal_handler = SignalHandler(engine, list_model)
+    engine.rootContext().setContextProperty("signalHandler", signal_handler)
+
     engine.load(qml_file)
 
-    # assigns the api key to the qml property mapboxgl_api_key
+    engine.rootObjects()[0].buttonClicked.connect(signal_handler.handleButtonClicked)
     engine.rootObjects()[0].setProperty("mapboxgl_api_key", data["MAPBOXGL_API_KEY"])
     engine.rootObjects()[0].setProperty("spotipy_client_id", data["SPOTIPY_CLIENT_ID"])
     engine.rootObjects()[0].setProperty(

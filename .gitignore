@@ -37,6 +37,7 @@ Thumbs.db
 env.json
 venv/
 jcs/
+.cache
 *.user
 # qtcreator generated files
 *.pro.user*

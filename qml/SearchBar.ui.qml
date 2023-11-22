@@ -9,6 +9,22 @@ import QtQuick.Window
 Item {
   id: sbContainer
 
+  function listProperties(item) {
+      var properties = "";
+      for (var p in item) if (typeof item[p] != "function") {
+          properties += (p + ": " + item[p] + "\n");
+      }
+      return properties;
+  }
+
+  function listFunctions(item) {
+      var functions = "";
+      for (var f in item) if (typeof item[f] == "function") {
+          functions += (f + ": " + item[f] + "\n");
+      }
+      return functions;
+  }
+
   GridLayout {
     id: sbGridLayout
 
@@ -35,10 +51,13 @@ Item {
 
     Button {
       id: sbSearchButton
+      objectName: "sbSearchButton"
       text: "Search"
       font.pointSize: 20
       Layout.alignment: Qt.AlignRight
       onClicked: {
+        console.log("Button clicked before model update")
+        window.buttonClicked()
         sbSearchLoader.sourceComponent = sbListViewComponent
       }
     }
@@ -49,6 +68,8 @@ Item {
       ListView {
         id: sbListView
         height: 300
+        clip: true
+        model: playlistModel
         delegate: Component {
           Rectangle {
             width: sbListView.width
@@ -59,7 +80,7 @@ Item {
               id: title
               elide: Text.ElideRight
               color: "white"
-              text: displayText
+              text: item
               font.bold: true
               anchors.leftMargin: 10
               anchors.fill: parent
@@ -68,10 +89,7 @@ Item {
           }
         }
         Component.onCompleted: {
-          sbListView.model = playlistModel.get_playlist_model()
-          console.log("sbListView model type: " + typeof(sbListView.model))
-          console.log("sbListView completed")
-          console.log("sbListView width: " + width)
+          console.log("model: " + sbListView.model)
         }
       }
     }
