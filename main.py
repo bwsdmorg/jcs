@@ -59,10 +59,8 @@ class ListModel(QAbstractListModel):
 
     @Slot()
     def clear(self):
-        listLength = len(self._items)
-        if listLength > 0:
-            self.beginRemoveRows(QModelIndex(), 0, listLength - 1)
-            self.endRemoveRows()
+        while self.rowCount() >= 1:
+            self.removeItem(self.rowCount() - 1)
 
 
 class SignalHandler(QObject):
