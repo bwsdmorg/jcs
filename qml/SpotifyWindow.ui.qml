@@ -101,34 +101,49 @@ Item {
 
           Button {
             id: swSongSearchButton
+            checkable: true
             text: "Search Songs"
             font.pointSize: 20
             Layout.fillWidth: true
-            onClicked: {
-              swSearchLoader.clickInitiator = "swSongSearchButton"
-              swSearchLoader.source = "Search.qml"
+            onToggled: {
+              if (checked) {
+                swSearchLoader.clickInitiator = "swSongSearchButton"
+                swSearchLoader.source = "Search.qml"
+              } else {
+                swSearchLoader.source = ""
+              }
             }
           }
 
           Button {
             id: swPlaylistSearchButton
+            checkable: true
             text: "Search Playlists"
             font.pointSize: 20
             Layout.fillWidth: true
-            onClicked: {
-              swSearchLoader.clickInitiator = "swPlaylistSearchButton"
-              swSearchLoader.source = "Search.qml"
+            onToggled: {
+              if (checked) {
+                swSearchLoader.clickInitiator = "swPlaylistSearchButton"
+                swSearchLoader.source = "Search.qml"
+              } else {
+                swSearchLoader.source = ""
+              }
             }
           }
 
           Button {
             id: swSelfPlaylistButton
+            checkable: true
             text: "Self Playlists"
             font.pointSize: 20
             Layout.fillWidth: true
-            onClicked: {
-              swSearchLoader.clickInitiator = "swSelfSearchButton"
-              swSearchLoader.source = "Search.qml"
+            onToggled: {
+              if (checked) {
+                swSearchLoader.clickInitiator = "swPlaylistSearchButton"
+                swSearchLoader.source = "Search.qml"
+              } else {
+                swSearchLoader.source = ""
+              }
             }
           }
 
