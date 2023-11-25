@@ -57,9 +57,18 @@ class ListModel(QAbstractListModel):
             del self._items[index]
             self.endRemoveRows()
 
+    @Slot()
+    def clear(self):
+        listLength = len(self._items)
+        if listLength > 0:
+            self.beginRemoveRows(QModelIndex(), 0, listLength - 1)
+            self.endRemoveRows()
+
 
 class SignalHandler(QObject):
-    buttonClicked = Signal()
+    playlistButtonClicked = Signal()
+    songButtonClicked = Signal()
+    selfButtonClicked = Signal()
 
     def __init__(self, engine, listModel):
         super().__init__()
@@ -67,16 +76,60 @@ class SignalHandler(QObject):
         self._listModel = listModel
 
     @Slot()
-    def handleButtonClicked(self):
-        print("Recieved signal")
-        playlist_model = getPlaylistModel(sp.current_user_playlists(), self._listModel)
+    def handleSongButtonClicked(self, signal):
+        print("Recieved song signal")
+        song_model = getSongModel(
+            sp.search(q=signal, type="track", market="US"),
+            self._listModel,
+        )
+        self._engine.rootContext().setContextProperty("songModel", song_model)
+        self.songButtonClicked.emit()
+
+    @Slot()
+    def handlePlaylistButtonClicked(self, signal):
+        print("Recieved playlist signal")
+        playlist_model = getPlaylistModel(
+            sp.search(q=signal, type="playlist", market="US"),
+            self._listModel,
+        )
         self._engine.rootContext().setContextProperty("playlistModel", playlist_model)
-        self.buttonClicked.emit()
+        self.playlistButtonClicked.emit()
+
+    @Slot()
+    def handleSelfButtonClicked(self):
+        print("Recieved playlist signal")
+        self_model = getSelfModel(sp.current_user_playlists(), self._listModel)
+        self._engine.rootContext().setContextProperty("selfModel", self_model)
+        self.selfButtonClicked.emit()
 
 
-@Slot()
+def getSongModel(query, listModel):
+    print("Getting Song Model")
+    listModel.clear()
+    results = query
+    for i, item in enumerate(results["tracks"]["items"]):
+        concatItem = item["name"] + " by " + item["artists"][0]["name"]
+        listModel.appendItem(concatItem)
+        print("%d %s %s" % (i, item["name"], item["artists"][0]["name"]))
+
+    return listModel
+
+
 def getPlaylistModel(query, listModel):
     print("Getting Playlist Model")
+    listModel.clear()
+    results = query
+    for i, item in enumerate(results["playlists"]["items"]):
+        concatItem = item["name"] + " made by " + item["owner"][0]["display_name"]
+        listModel.appendItem(concatItem)
+        print("%d %s %s" % (i, item["name"], item["owner"][0]["display_name"]))
+
+    return listModel
+
+
+def getSelfModel(query, listModel):
+    print("Getting Self Model")
+    listModel.clear()
     results = query
     for i, item in enumerate(results["items"]):
         listModel.appendItem(item["name"])
@@ -131,7 +184,15 @@ if __name__ == "__main__":
 
     engine.load(qml_file)
 
-    engine.rootObjects()[0].buttonClicked.connect(signal_handler.handleButtonClicked)
+    engine.rootObjects()[0].songButtonClicked.connect(
+        signal_handler.handleSongButtonClicked
+    )
+    engine.rootObjects()[0].playlistButtonClicked.connect(
+        signal_handler.handlePlaylistButtonClicked
+    )
+    engine.rootObjects()[0].selfButtonClicked.connect(
+        signal_handler.handleSelfButtonClicked
+    )
     engine.rootObjects()[0].setProperty("mapboxgl_api_key", data["MAPBOXGL_API_KEY"])
     engine.rootObjects()[0].setProperty("spotipy_client_id", data["SPOTIPY_CLIENT_ID"])
     engine.rootObjects()[0].setProperty(

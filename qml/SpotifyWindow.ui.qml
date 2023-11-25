@@ -9,6 +9,23 @@ import QtQuick.Window
 Item {
   id: swRoot
 
+  function listProperties(item) {
+      var properties = "";
+      for (var p in item) if (typeof item[p] != "function") {
+          properties += (p + ": " + item[p] + "\n");
+      }
+      return properties;
+  }
+
+  function listFunctions(item) {
+      var functions = "";
+      for (var f in item) if (typeof item[f] == "function") {
+          functions += (f + ": " + item[f] + "\n");
+      }
+      return functions;
+  }
+
+
   Rectangle {
     id: spotifyWindow
 
@@ -88,6 +105,7 @@ Item {
             font.pointSize: 20
             Layout.fillWidth: true
             onClicked: {
+              swSearchLoader.clickInitiator = "swSongSearchButton"
               swSearchLoader.source = "Search.qml"
             }
           }
@@ -97,18 +115,27 @@ Item {
             text: "Search Playlists"
             font.pointSize: 20
             Layout.fillWidth: true
+            onClicked: {
+              swSearchLoader.clickInitiator = "swPlaylistSearchButton"
+              swSearchLoader.source = "Search.qml"
+            }
           }
 
           Button {
-            id: swMyPlaylistButton
-            text: "My Playlists"
+            id: swSelfPlaylistButton
+            text: "Self Playlists"
             font.pointSize: 20
             Layout.fillWidth: true
+            onClicked: {
+              swSearchLoader.clickInitiator = "swSelfSearchButton"
+              swSearchLoader.source = "Search.qml"
+            }
           }
 
 
           Loader {
             id: swSearchLoader
+            property string clickInitiator
             onStatusChanged: {
               console.log(status)
             }

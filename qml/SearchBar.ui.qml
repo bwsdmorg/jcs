@@ -44,7 +44,7 @@ Item {
         width: parent.width
         anchors.top: sbTextField.bottom
         onStatusChanged: {
-          console.log("sbSearchLoader status: " + status)
+          console.log("sbSearchLoader status: " + parent)
         }
       }
     }
@@ -56,9 +56,18 @@ Item {
       font.pointSize: 20
       Layout.alignment: Qt.AlignRight
       onClicked: {
-        console.log("Button clicked before model update")
-        window.buttonClicked()
-        sbSearchLoader.sourceComponent = sbListViewComponent
+        console.log("clickInitiator check: " + clickInitiator)
+
+        if (clickInitiator == "swSongSearchButton") {
+          window.songButtonClicked(sbTextField.text)
+          sbSearchLoader.sourceComponent = sbListViewComponent
+        } else if (clickInitirator == "swPlaylistSearchButton") {
+          window.playlistButtonClicked(sbTextField.text)
+          sbSearchLoader.sourceComponent = sbListViewComponent
+        } else if (clickInitiator == "swSelfPlaylistButton") {
+          window.selfButtonClicked(sbTextField.text)
+          sbSearchLoader.sourceComponent = sbListViewComponent
+        }
       }
     }
   
@@ -69,7 +78,7 @@ Item {
         id: sbListView
         height: 300
         clip: true
-        model: playlistModel
+        model: listModel
         delegate: Component {
           Rectangle {
             width: sbListView.width

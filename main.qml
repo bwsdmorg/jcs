@@ -16,7 +16,9 @@ Window {
     property string mapboxgl_api_token
     property var wnd
 
-    signal buttonClicked()
+    signal songButtonClicked(var songSearchString)
+    signal playlistButtonClicked()
+    signal selfButtonClicked()
 
     function showRoute(startCoordinate, endCoordinate) {
       routeQuery.addWaypoint(startCoordinate)
@@ -24,9 +26,6 @@ Window {
       routeModel.update()
     }
 
-    onButtonClicked: {
-      console.log("Button was clicked")
-    }
     Plugin {
         id: mapPlugin
         name: "osm"
