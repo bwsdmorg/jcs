@@ -64,32 +64,6 @@ Item {
         rowSpacing: 10
         anchors.fill: parent
         
-        //ListView {
-        //  id: swPlaylistList
-        //  Layout.fillHeight: true
-        //  Layout.fillWidth: true
-        //  Layout.columnSpan: 2
-        //  model: playlistModel
-        //  delegate: Component {
-        //    Rectangle {
-        //      width: swPlaylistList.width
-        //      height: 40
-        //      color: ((index % 2 == 0)?"#222":"#111")
-
-        //      Text {
-        //        id: title
-        //        elide: Text.ElideRight
-        //        text: displayText
-        //        color: "white"
-        //        font.bold: true
-        //        anchors.leftMargin: 10
-        //        anchors.fill: parent
-        //        verticalAlignment: Text.AlignVCenter
-        //      }
-        //    }
-        //  }
-        //}
-
         GridLayout {
           id:swDisplayContainer
           Layout.columnSpan: parent.columns
@@ -139,7 +113,7 @@ Item {
             Layout.fillWidth: true
             onToggled: {
               if (checked) {
-                swSearchLoader.clickInitiator = "swPlaylistSearchButton"
+                swSearchLoader.clickInitiator = "swSelfPlaylistButton"
                 swSearchLoader.source = "Search.qml"
               } else {
                 swSearchLoader.source = ""

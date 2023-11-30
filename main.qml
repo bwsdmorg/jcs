@@ -17,8 +17,10 @@ Window {
     property var wnd
 
     signal songButtonClicked(var songSearchString)
-    signal playlistButtonClicked()
+    signal playlistButtonClicked(var playlistSearchString)
     signal selfButtonClicked()
+
+    signal listViewClicked(var deviceId, var uri)
 
     function showRoute(startCoordinate, endCoordinate) {
       routeQuery.addWaypoint(startCoordinate)

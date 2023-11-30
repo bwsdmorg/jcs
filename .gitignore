@@ -38,6 +38,7 @@ env.json
 venv/
 jcs/
 .cache
+cache/
 *.user
 # qtcreator generated files
 *.pro.user*

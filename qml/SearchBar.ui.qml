@@ -61,7 +61,7 @@ Item {
         if (clickInitiator == "swSongSearchButton") {
           window.songButtonClicked(sbTextField.text)
           sbSearchLoader.sourceComponent = sbListViewComponent
-        } else if (clickInitirator == "swPlaylistSearchButton") {
+        } else if (clickInitiator == "swPlaylistSearchButton") {
           window.playlistButtonClicked(sbTextField.text)
           sbSearchLoader.sourceComponent = sbListViewComponent
         } else if (clickInitiator == "swSelfPlaylistButton") {
@@ -89,11 +89,28 @@ Item {
               id: title
               elide: Text.ElideRight
               color: "white"
-              text: item
               font.bold: true
               anchors.leftMargin: 10
               anchors.fill: parent
               verticalAlignment: Text.AlignVCenter
+            }
+
+            Component.onCompleted: {
+              if (clickInitiator == "swSelfPlaylistButton") {
+                title.text = item[0]
+              } else {
+                title.text = item[0] + " by " + item[1]
+              }
+            }
+
+            MouseArea {
+              id: sbListViewMouseArea
+              anchors.fill: parent
+              onClicked: {
+                console.log("Mouse area clicked: " + item)
+                var deviceId = "ce8d71004f9597141d4b5940bd1bb2dc52a35dae"
+                window.listViewClicked(deviceId, item[2])
+              }
             }
           }
         }

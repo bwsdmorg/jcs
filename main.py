@@ -14,7 +14,7 @@ from PySide6.QtCore import (
     Signal,
 )
 from PySide6.QtGui import QGuiApplication
-from PySide6.QtQml import QQmlApplicationEngine, qmlRegisterType
+from PySide6.QtQml import QQmlApplicationEngine
 
 
 class ListModel(QAbstractListModel):
@@ -67,6 +67,7 @@ class SignalHandler(QObject):
     playlistButtonClicked = Signal()
     songButtonClicked = Signal()
     selfButtonClicked = Signal()
+    listViewClicked = Signal()
 
     def __init__(self, engine, listModel):
         super().__init__()
@@ -95,10 +96,15 @@ class SignalHandler(QObject):
 
     @Slot()
     def handleSelfButtonClicked(self):
-        print("Recieved playlist signal")
+        print("Recieved self playlist signal")
         self_model = getSelfModel(sp.current_user_playlists(), self._listModel)
         self._engine.rootContext().setContextProperty("selfModel", self_model)
         self.selfButtonClicked.emit()
+
+    @Slot()
+    def handleListViewClicked(self, deviceId, uri):
+        print("Recieved listView signal")
+        sp.start_playback(device_id=deviceId, uris=[uri])
 
 
 def getSongModel(query, listModel):
@@ -106,9 +112,14 @@ def getSongModel(query, listModel):
     listModel.clear()
     results = query
     for i, item in enumerate(results["tracks"]["items"]):
-        concatItem = item["name"] + " by " + item["artists"][0]["name"]
-        listModel.appendItem(concatItem)
-        print("%d %s %s" % (i, item["name"], item["artists"][0]["name"]))
+        tempList = []
+        tempList.append(item["name"])
+        tempList.append(item["artists"][0]["name"])
+        tempList.append(item["uri"])
+        listModel.appendItem(tempList)
+        print(
+            "%d %s %s %s" % (i, item["name"], item["artists"][0]["name"], item["uri"])
+        )
 
     return listModel
 
@@ -118,9 +129,12 @@ def getPlaylistModel(query, listModel):
     listModel.clear()
     results = query
     for i, item in enumerate(results["playlists"]["items"]):
-        concatItem = item["name"] + " made by " + item["owner"][0]["display_name"]
-        listModel.appendItem(concatItem)
-        print("%d %s %s" % (i, item["name"], item["owner"][0]["display_name"]))
+        tempList = []
+        tempList.append(item["name"])
+        tempList.append(item["owner"]["display_name"])
+        tempList.append(item["uri"])
+        listModel.appendItem(tempList)
+        print("%d %s %s" % (i, item["name"], item["owner"]["display_name"]))
 
     return listModel
 
@@ -130,22 +144,19 @@ def getSelfModel(query, listModel):
     listModel.clear()
     results = query
     for i, item in enumerate(results["items"]):
-        listModel.appendItem(item["name"])
+        tempList = []
+        tempList.append(item["name"])
+        tempList.append(item["uri"])
+        listModel.appendItem(tempList)
         print("%d %s" % (i, item["name"]))
 
     return listModel
 
 
-# def get_devicelist_model(query):
-#    data_list = []
-#    results = query
-#    print(results)
-#    for i, item in enumerate(results["devices"]):
-#        data_list.append(item["name"])
-#        print("%d %s" % (i, item["name"]))
-#
-#    model = ListModel(data_list)
-#    return model
+def get_devicelist_model(query):
+    results = query
+    for i, item in enumerate(results["devices"]):
+        print("%d %s %s" % (i, item["name"], item["id"]))
 
 
 if __name__ == "__main__":
@@ -157,21 +168,15 @@ if __name__ == "__main__":
     os.environ["SPOTIPY_CLIENT_SECRET"] = data["SPOTIPY_CLIENT_SECRET"]
     os.environ["SPOTIPY_REDIRECT_URI"] = data["SPOTIPY_REDIRECT_URI"]
 
-    scope = "playlist-read-private user-read-playback-state"
+    scope = "playlist-read-private user-read-playback-state user-modify-playback-state"
 
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
+
+    get_devicelist_model(sp.devices())
 
     app = QGuiApplication(sys.argv)
 
     engine = QQmlApplicationEngine()
-
-    # playlist_model = getPlaylistModel(sp.current_user_playlists())
-    # devicelist_model = get_devicelist_model(sp.devices())
-    # context = engine.rootContext()
-    # context.setContextProperty("playlistModel", playlist_model)
-    # context.setContextProperty("deviceModel", devicelist_model)
-
-    # context_setter = ContextSetter(engine, "playlistModel", playlist_model)
 
     qml_file = Path(__file__).resolve().parent / "main.qml"
 
@@ -190,6 +195,9 @@ if __name__ == "__main__":
     )
     engine.rootObjects()[0].selfButtonClicked.connect(
         signal_handler.handleSelfButtonClicked
+    )
+    engine.rootObjects()[0].listViewClicked.connect(
+        signal_handler.handleListViewClicked
     )
     engine.rootObjects()[0].setProperty("mapboxgl_api_key", data["MAPBOXGL_API_KEY"])
     engine.rootObjects()[0].setProperty("spotipy_client_id", data["SPOTIPY_CLIENT_ID"])
