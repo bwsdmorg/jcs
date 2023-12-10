@@ -139,10 +139,15 @@ Item {
           
 
           Button {
-            id: swPlayerReverse
+            id: swPlayerPrev
             text: "<<"
             font.pointSize: 20
             height: 50
+            onClicked: {
+              console.log("Player Prev Button Clicked")
+              window.playerPrevButtonClicked()
+
+            }
           }
 
           Button {
@@ -158,9 +163,13 @@ Item {
           }
 
           Button {
-            id: swPlayerForward
+            id: swPlayerNext
             text: ">>"
             font.pointSize: 20
+            onClicked: {
+              console.log("Player Forward Button Clicked")
+              window.playerNextButtonClicked()
+            }
           }
         }
       }

@@ -68,6 +68,10 @@ class SignalHandler(QObject):
     songButtonClicked = Signal()
     selfButtonClicked = Signal()
     listViewClicked = Signal()
+    playerPrevButtonClicked = Signal()
+    playerPlayButtonClicked = Signal()
+    playerPauseButtonClicked = Signal()
+    playerNextButtonClicked = Signal()
 
     def __init__(self, engine, listModel):
         super().__init__()
@@ -105,6 +109,16 @@ class SignalHandler(QObject):
     def handleListViewClicked(self, deviceId, uri):
         print("Recieved listView signal")
         sp.start_playback(device_id=deviceId, uris=[uri])
+
+    @Slot()
+    def handlePlayerPrevButtonClicked(self, deviceId):
+        print("Recieved playerPrev signal")
+        sp.previous_track(device_id=deviceId)
+
+    @Slot()
+    def hanglePlayerNextButtonClicked(self, deviceId):
+        print("Recieved playerNext signal")
+        sp.next_track(device_id=deviceId)
 
 
 def getSongModel(query, listModel):

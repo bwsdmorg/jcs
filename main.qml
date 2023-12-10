@@ -22,6 +22,11 @@ Window {
 
     signal listViewClicked(var deviceId, var uri)
 
+    signal playerPrevButtonClicked()
+    signal playerPlayButtonClicked()
+    signal playerPauseButtonClicked()
+    signal playerNextButtonClicked()
+
     function showRoute(startCoordinate, endCoordinate) {
       routeQuery.addWaypoint(startCoordinate)
       routeQuery.addWaypoint(endCoordinate)
