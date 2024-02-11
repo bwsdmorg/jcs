@@ -25,6 +25,8 @@ Item {
       return functions;
   }
 
+  property bool isPlaying: false
+
 
   Rectangle {
     id: spotifyWindow
@@ -152,8 +154,21 @@ Item {
 
           Button {
             id: swPlayerPlay
-            text: "|>"
+            checkable: true
+            icon.source: "../images/round-play-arrow.svg"
+            icon.height: 35
+            icon.width: 35
             font.pointSize: 20
+            onToggled: {
+              if (swRoot.isPlaying) {
+                icon.source = "../images/round-play-arrow.svg"
+                swRoot.isPlaying = false
+              } else {
+                icon.source = "../images/round-pause.svg"
+                swRoot.isPlaying = true
+              }
+            }
+            
 
           }
 
