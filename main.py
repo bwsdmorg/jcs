@@ -3,6 +3,7 @@ import os
 import sys
 import json
 import spotipy
+import spotipy.util as util
 from spotipy.oauth2 import SpotifyOAuth
 from pathlib import Path
 from PySide6.QtCore import (
@@ -73,10 +74,11 @@ class SignalHandler(QObject):
     playerPauseButtonClicked = Signal()
     playerNextButtonClicked = Signal()
 
-    def __init__(self, engine, listModel):
+    def __init__(self, engine, listModel, deviceId):
         super().__init__()
         self._engine = engine
         self._listModel = listModel
+        self._deviceId = deviceId
 
     @Slot()
     def handleSongButtonClicked(self, signal):
@@ -106,19 +108,29 @@ class SignalHandler(QObject):
         self.selfButtonClicked.emit()
 
     @Slot()
-    def handleListViewClicked(self, deviceId, uri):
+    def handleListViewClicked(self, uri):
         print("Recieved listView signal")
-        sp.start_playback(device_id=deviceId, uris=[uri])
+        sp.start_playback(device_id=self._deviceId, context_uri=uri)
 
     @Slot()
-    def handlePlayerPrevButtonClicked(self, deviceId):
+    def handlePlayerPlayButtonClicked(self):
+        print("Received playerPlay signal")
+        sp.start_playback(device_id=self._deviceId)
+
+    @Slot()
+    def handlePlayerPauseButtonClicked(self):
+        print("Received playerPause signal")
+        sp.pause_playback(device_id=self._deviceId)
+
+    @Slot()
+    def handlePlayerPrevButtonClicked(self):
         print("Recieved playerPrev signal")
-        sp.previous_track(device_id=deviceId)
+        sp.previous_track(device_id=self._deviceId)
 
     @Slot()
-    def hanglePlayerNextButtonClicked(self, deviceId):
+    def hanglePlayerNextButtonClicked(self):
         print("Recieved playerNext signal")
-        sp.next_track(device_id=deviceId)
+        sp.next_track(device_id=self._deviceId)
 
 
 def getSongModel(query, listModel):
@@ -181,6 +193,7 @@ if __name__ == "__main__":
     os.environ["SPOTIPY_CLIENT_ID"] = data["SPOTIPY_CLIENT_ID"]
     os.environ["SPOTIPY_CLIENT_SECRET"] = data["SPOTIPY_CLIENT_SECRET"]
     os.environ["SPOTIPY_REDIRECT_URI"] = data["SPOTIPY_REDIRECT_URI"]
+    device_id = data["SPOTIFY_DEVICE_ID"]
 
     scope = "playlist-read-private user-read-playback-state user-modify-playback-state"
 
@@ -196,7 +209,7 @@ if __name__ == "__main__":
 
     list_model = ListModel()
     engine.rootContext().setContextProperty("listModel", list_model)
-    signal_handler = SignalHandler(engine, list_model)
+    signal_handler = SignalHandler(engine, list_model, device_id)
     engine.rootContext().setContextProperty("signalHandler", signal_handler)
 
     engine.load(qml_file)

@@ -161,9 +161,13 @@ Item {
             font.pointSize: 20
             onToggled: {
               if (swRoot.isPlaying) {
+                console.log("Player Pause Button Clicked")
+                window.playerPauseButtonClicked()
                 icon.source = "../images/round-play-arrow.svg"
                 swRoot.isPlaying = false
               } else {
+                console.log("Player Play Button Clicked")
+                window.playerPlayButtonClicked()
                 icon.source = "../images/round-pause.svg"
                 swRoot.isPlaying = true
               }

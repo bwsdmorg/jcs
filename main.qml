@@ -20,7 +20,7 @@ Window {
     signal playlistButtonClicked(var playlistSearchString)
     signal selfButtonClicked()
 
-    signal listViewClicked(var deviceId, var uri)
+    signal listViewClicked(var uri)
 
     signal playerPrevButtonClicked()
     signal playerPlayButtonClicked()

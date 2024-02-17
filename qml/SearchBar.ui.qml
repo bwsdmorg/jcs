@@ -108,8 +108,8 @@ Item {
               anchors.fill: parent
               onClicked: {
                 console.log("Mouse area clicked: " + item)
-                var deviceId = "ce8d71004f9597141d4b5940bd1bb2dc52a35dae"
-                window.listViewClicked(deviceId, item[2])
+                console.log("Item[2]: " + item[1])
+                window.listViewClicked(item[1])
               }
             }
           }
