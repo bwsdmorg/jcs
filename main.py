@@ -182,7 +182,14 @@ def getSelfModel(query, listModel):
 def get_devicelist_model(query):
     results = query
     for i, item in enumerate(results["devices"]):
-        print("%d %s %s" % (i, item["name"], item["id"]))
+        print("%d %s %s %s" % (i, item["name"], item["id"], item["is_active"]))
+
+
+def get_device_id(query):
+    results = query
+    for i, item in enumerate(results["devices"]):
+        if item["name"] == "JCS":
+            return item["id"]
 
 
 if __name__ == "__main__":
@@ -193,14 +200,12 @@ if __name__ == "__main__":
     os.environ["SPOTIPY_CLIENT_ID"] = data["SPOTIPY_CLIENT_ID"]
     os.environ["SPOTIPY_CLIENT_SECRET"] = data["SPOTIPY_CLIENT_SECRET"]
     os.environ["SPOTIPY_REDIRECT_URI"] = data["SPOTIPY_REDIRECT_URI"]
-    device_id = data["SPOTIFY_DEVICE_ID"]
 
     scope = "playlist-read-private user-read-playback-state user-modify-playback-state"
-
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
-
     get_devicelist_model(sp.devices())
 
+    device_id = get_device_id(sp.devices())
     app = QGuiApplication(sys.argv)
 
     engine = QQmlApplicationEngine()
