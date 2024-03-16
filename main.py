@@ -4,6 +4,7 @@ import sys
 import json
 import spotipy
 import spotipy.util as util
+import signal
 from spotipy.oauth2 import SpotifyOAuth
 from pathlib import Path
 from PySide6.QtCore import (
