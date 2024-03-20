@@ -232,6 +232,19 @@ if __name__ == "__main__":
     engine.rootObjects()[0].listViewClicked.connect(
         signal_handler.handleListViewClicked
     )
+    engine.rootObjects()[0].playerPlayButtonClicked.connect(
+        signal_handler.handlePlayerPlayButtonClicked
+    )
+    engine.rootObjects()[0].playerPauseButtonClicked.connect(
+        signal_handler.handlePlayerPauseButtonClicked
+    )
+    engine.rootObjects()[0].playerPrevButtonClicked.connect(
+        signal_handler.handlePlayerPrevButtonClicked
+    )
+    engine.rootObjects()[0].playerNextButtonClicked.connect(
+        signal_handler.hanglePlayerNextButtonClicked
+    )
+
     engine.rootObjects()[0].setProperty("mapboxgl_api_key", data["MAPBOXGL_API_KEY"])
     engine.rootObjects()[0].setProperty("spotipy_client_id", data["SPOTIPY_CLIENT_ID"])
     engine.rootObjects()[0].setProperty(
