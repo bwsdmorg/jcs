@@ -39,14 +39,6 @@ Item {
       Component.onCompleted: {
         console.log("Width: " + width)
       }
-      Loader {
-        id: sbSearchLoader
-        width: parent.width
-        anchors.top: sbTextField.bottom
-        onStatusChanged: {
-          console.log("sbSearchLoader status: " + parent)
-        }
-      }
     }
 
     Button {
@@ -60,63 +52,16 @@ Item {
 
         if (clickInitiator == "swSongSearchButton") {
           window.songButtonClicked(sbTextField.text)
-          sbSearchLoader.sourceComponent = sbListViewComponent
-        } else if (clickInitiator == "swPlaylistSearchButton") {
+          sbSearchLoader.source = "Results.qml"
+        } else {
           window.playlistButtonClicked(sbTextField.text)
-          sbSearchLoader.sourceComponent = sbListViewComponent
-        } else if (clickInitiator == "swSelfPlaylistButton") {
-          window.selfButtonClicked(sbTextField.text)
-          sbSearchLoader.sourceComponent = sbListViewComponent
+          sbSearchLoader.source = "Results.qml"
         }
       }
     }
-  
-    Component {
-      id: sbListViewComponent
-
-      ListView {
-        id: sbListView
-        height: 300
-        clip: true
-        model: listModel
-        delegate: Component {
-          Rectangle {
-            width: sbListView.width
-            height: 40
-            color: ((index % 2 == 0)?"#222":"#111")
-
-            Text {
-              id: title
-              elide: Text.ElideRight
-              color: "white"
-              font.bold: true
-              anchors.leftMargin: 10
-              anchors.fill: parent
-              verticalAlignment: Text.AlignVCenter
-            }
-
-            Component.onCompleted: {
-              if (clickInitiator == "swSelfPlaylistButton") {
-                title.text = item[0]
-              } else {
-                title.text = item[0] + " by " + item[1]
-              }
-            }
-
-            MouseArea {
-              id: sbListViewMouseArea
-              anchors.fill: parent
-              onClicked: {
-                console.log("Mouse area clicked: " + item)
-                console.log("Item[2]: " + item[1])
-                window.listViewClicked(item[1])
-              }
-            }
-          }
-        }
-        Component.onCompleted: {
-          console.log("model: " + sbListView.model)
-        }
+    Loader {
+      id: sbSearchLoader
+      onStatusChanged: {
       }
     }
   }

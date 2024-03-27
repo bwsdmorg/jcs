@@ -8,6 +8,8 @@
         "qml/SpotifyWindow.ui.qml",
         "qml/Spotify.qml",
         "qml/SearchBar.ui.qml",
-        "qml/Search.qml"
+        "qml/Search.qml",
+        "qml/SpotifyResults.ui.qml",
+        "qml/Results.qml",
     ]
 }
