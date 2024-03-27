@@ -116,7 +116,8 @@ Item {
             onToggled: {
               if (checked) {
                 swSearchLoader.clickInitiator = "swSelfPlaylistButton"
-                swSearchLoader.source = "Search.qml"
+                swSearchLoader.source = "Results.qml"
+                window.selfButtonClicked()
               } else {
                 swSearchLoader.source = ""
               }
@@ -129,6 +130,7 @@ Item {
             property string clickInitiator
             onStatusChanged: {
               console.log(status)
+              console.log(item)
             }
           }
         }
