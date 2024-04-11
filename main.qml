@@ -27,6 +27,23 @@ Window {
     signal playerPauseButtonClicked()
     signal playerNextButtonClicked()
 
+
+    function listProperties(item) {
+        var properties = "";
+        for (var p in item) if (typeof item[p] != "function") {
+            properties += (p + ": " + item[p] + "\n");
+        }
+        return properties;
+    }
+
+    function listFunctions(item) {
+        var functions = "";
+        for (var f in item) if (typeof item[f] == "function") {
+            functions += (f + ": " + item[f] + "\n");
+        }
+        return functions;
+    }
+
     function showRoute(startCoordinate, endCoordinate) {
       routeQuery.addWaypoint(startCoordinate)
       routeQuery.addWaypoint(endCoordinate)
@@ -42,7 +59,7 @@ Window {
     GridLayout {
         id: gridLayout
         columns: 2
-        rows: 5
+        rows: 4
         columnSpacing: 0
         rowSpacing: 0
         flow: GridLayout.TopToBottom
@@ -66,9 +83,8 @@ Window {
 
           checkable: true
           text: "Search/Routing"
-          width: 200
+          Layout.preferredHeight: 200
           Layout.fillWidth: true
-          Layout.fillHeight: true
           Layout.column: 0
           Layout.row: 1
           Layout.alignment: Qt.AlignTop
@@ -93,9 +109,8 @@ Window {
 
           checkable: true
           text: "Open Spotify"
-          width: 200
+          Layout.preferredHeight: 200
           Layout.fillWidth: true
-          Layout.fillHeight: true
           Layout.column: 0
           Layout.row: 2
           Layout.alignment: Qt.AlignTop
@@ -114,9 +129,120 @@ Window {
             }
           }
         }
-        // TODO: Step by step route listing like google maps
-        // TODO: Add travel optimizations/options to routes
-        // TODO: Zoom on scroll wheel/pinch
+
+
+        Rectangle {
+          id: spotifyControls
+
+          color: "#1DB954"
+          Layout.fillWidth: true
+          Layout.fillHeight: true
+
+          ColumnLayout {
+
+            // Volume Buttons
+            RowLayout {
+
+              Layout.leftMargin: 2
+              Layout.alignment: Qt.AlignCenter
+              Layout.fillWidth: true
+              Layout.preferredHeight: spotifyControls.height/3
+
+              RoundButton {
+                id: muteButton
+                implicitWidth: spotifyControls.width/3 - parent.spacing
+                implicitHeight: spotifyControls.height/3 - parent.spacing
+                icon.height: 50
+                icon.width: 50
+                icon.source: "./images/round-volume-mute.svg"
+                radius: 50
+                // onClicked: { muted = !muted }
+                onClicked: { console.log(spotifyControls.width)}
+              }
+              
+              RoundButton {
+                id: volDownButton
+                implicitWidth: spotifyControls.width/3 - parent.spacing
+                implicitHeight: spotifyControls.height/3 - parent.spacing
+                icon.height: 50
+                icon.width: 50
+                icon.source: "./images/round-volume-down.svg"
+                radius: 50
+                // onClicked: { muted = !muted }
+                onClicked: { console.log(parent.height)}
+              }
+              
+              RoundButton {
+                id: volUpButton
+                implicitWidth: spotifyControls.width/3 - parent.spacing
+                implicitHeight: spotifyControls.height/3 - parent.spacing
+                icon.height: 50
+                icon.width: 50
+                icon.source: "./images/round-volume-up.svg"
+                radius: 50
+                // onClicked: { muted = !muted }
+                onClicked: { console.log(parent.height)}
+              }
+            } 
+
+            // Volume Slider
+
+            Slider {
+              id: volSlider
+              from: 0
+              to: 100
+
+              Layout.margins: 5
+              Layout.fillWidth: true
+              Layout.preferredHeight: spotifyControls.height / 3
+
+              handle: Rectangle {
+                x: volSlider.leftPadding + volSlider.visualPosition * (volSlider.availableWidth - width)
+                y: volSlider.topPadding + volSlider.availableHeight / 2 - height / 2
+
+                implicitHeight: 50
+                implicitWidth: 50
+                radius: 25
+              }
+            }
+
+            // Song Title
+
+            Item {
+              id: marquee
+
+              property string msg: "Long ass message for no reason"
+              property color fontColor: 'white'
+              property int fontSize: 20
+
+              Layout.fillWidth: true
+              Layout.preferredHeight: spotifyControls.height / 3
+
+              Text {
+                id: marqueeText
+                anchors.verticalCenter: marquee.verticalCenter
+                height: marquee.height
+                font.family: 'Droid Sans Fallback'
+                font.pointSize: marquee.fontSize
+                color: 'white'
+                text: marquee.msg
+
+                Component.onCompleted: {
+                  console.log(listProperties(marquee))
+                }
+
+
+                SequentialAnimation on x {
+                  loops: Animation.Infinite
+                  PropertyAnimation { to: marquee.width; duration: 10000}
+                  PropertyAnimation { to: -marqueeText.width; duration: 10000}
+                  running: true
+
+                }
+              }
+            }
+          }
+        }
         
         Map {
             id: navMap
@@ -305,35 +431,5 @@ Window {
             }
         }
 
-    }
-
-    // TODO: Fix input panel
-    InputPanel {
-        id: inputPanel
-        z: 99
-        x: 0
-        y: window.height
-        width: window.width
-
-        states: State {
-            name: "visible"
-            when: inputPanel.active
-            PropertyChanges {
-                target: inputPanel
-                y: window.height - inputPanel.height
-            }
-        }
-        transitions: Transition {
-            from: ""
-            to: "visible"
-            reversible: true
-            ParallelAnimation {
-                NumberAnimation {
-                    properties: "y"
-                    duration: 250
-                    easing.type: Easing.InOutQuad
-                }
-            }
-        }
     }
 }

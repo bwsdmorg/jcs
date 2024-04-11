@@ -3,7 +3,7 @@ import QtPositioning
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuick.VirtualKeyboard
+//import QtQuick.VirtualKeyboard
 import QtQuick.Window
 
 Item {
