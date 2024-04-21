@@ -2,6 +2,7 @@
 import os
 import sys
 import json
+import time
 import spotipy
 import spotipy.util as util
 import signal
@@ -14,6 +15,8 @@ from PySide6.QtCore import (
     QModelIndex,
     Slot,
     Signal,
+    QRunnable,
+    QThreadPool,
 )
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
@@ -134,6 +137,31 @@ class SignalHandler(QObject):
         sp.next_track(device_id=self._deviceId)
 
 
+class Poller(QRunnable):
+    def __init__(self):
+        super().__init__()
+        self.is_running = True
+
+    """
+        When a song is started, the thread will run and pull current song information.
+        The way we will achieve this is by calculating the time left based on the song length.
+        If a song is started, that time to run is now. If a song is coming up next that time should be calculated.
+    
+        Inputs:
+        Play Button Clicked
+        Playlist Clicked
+        Song Clicked
+
+    """
+
+    def run(self):
+        while self.is_running:
+            
+
+    def stop(self):
+        self.is_running = False
+
+
 def getSongModel(query, listModel):
     print("Getting Song Model")
     listModel.clear()
@@ -213,6 +241,10 @@ if __name__ == "__main__":
 
     qml_file = Path(__file__).resolve().parent / "main.qml"
 
+    poller = Poller()
+    threadpool = QThreadPool()
+    threadpool.start(poller)
+
     list_model = ListModel()
     engine.rootContext().setContextProperty("listModel", list_model)
     signal_handler = SignalHandler(engine, list_model, device_id)
@@ -256,4 +288,6 @@ if __name__ == "__main__":
 
     if not engine.rootObjects():
         sys.exit(-1)
-    sys.exit(app.exec())
+
+    app.exec()
+    poller.stop()
