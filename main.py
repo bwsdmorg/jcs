@@ -120,6 +120,13 @@ class SignalHandler(QObject):
     def handlePlayerPlayButtonClicked(self):
         print("Received playerPlay signal")
         sp.start_playback(device_id=self._deviceId)
+        '''
+           Clicking the play button probably means a song is not playing and one needs to be selected.
+           Since this is our expected state we should start a poller that will handle the state.
+           How do you pick a song to play? Is there some kind of state somewhere?
+           Maybe we just dont do anything?
+           There is also the state of a paused song that we need to cover
+        '''
 
     @Slot()
     def handlePlayerPauseButtonClicked(self):
@@ -138,10 +145,11 @@ class SignalHandler(QObject):
 
 
 class Poller(QRunnable):
-    def __init__(self):
+    def __init__(self, status, sp):
         super().__init__()
         self.is_running = True
-
+        self._status = status
+        self._sp = sp
     """
         When a song is started, the thread will run and pull current song information.
         The way we will achieve this is by calculating the time left based on the song length.
@@ -156,7 +164,15 @@ class Poller(QRunnable):
 
     def run(self):
         while self.is_running:
-            
+            if self._status == "instantiation":
+                print("Poller is running, but sleeping")
+                currently_playing = self._sp.currently_playing())
+                if currently_playing == None:
+                    print("You need to select something to play")
+                else:
+                    self._status = "playing"
+
+                self.is_running = False
 
     def stop(self):
         self.is_running = False
@@ -241,7 +257,7 @@ if __name__ == "__main__":
 
     qml_file = Path(__file__).resolve().parent / "main.qml"
 
-    poller = Poller()
+    poller = Poller(status = "instantiation", sp = sp)
     threadpool = QThreadPool()
     threadpool.start(poller)
 
